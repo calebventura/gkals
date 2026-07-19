@@ -633,7 +633,7 @@ legend {
   width: 64px;
   height: 64px;
   border-radius: 12px;
-  object-fit: cover;
+  object-fit: contain;
   flex-shrink: 0;
 }
 .mascot-bubble h3 {
