@@ -1,4 +1,7 @@
 project_id = "gkals-habits-pwa"
 
+[analytics]
+enabled = false
+
 [functions.send-habit-reminders]
 verify_jwt = false

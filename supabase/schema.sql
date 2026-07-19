@@ -4,6 +4,7 @@ create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   display_name text,
   time_zone text not null default 'Etc/UTC',
+  streak_freezes int not null default 0,
   created_at timestamptz not null default now()
 );
 
@@ -29,6 +30,9 @@ create table if not exists public.habit_completions (
   user_id uuid not null references auth.users(id) on delete cascade,
   completed_on date not null,
   count int not null default 1 check (count > 0),
+  proof_url text,
+  proof_type text check (proof_type in ('image', 'audio', 'none')),
+  is_freeze boolean not null default false,
   created_at timestamptz not null default now(),
   unique (habit_id, completed_on)
 );
@@ -149,3 +153,16 @@ with check (auth.uid() = user_id);
 create policy "events_select_own"
 on public.notification_events for select
 using (auth.uid() = user_id);
+
+-- Storage Setup
+insert into storage.buckets (id, name, public)
+values ('habit_proofs', 'habit_proofs', false)
+on conflict (id) do nothing;
+
+create policy "Users can view their own proofs"
+on storage.objects for select
+using ( bucket_id = 'habit_proofs' and auth.uid() = owner );
+
+create policy "Users can upload their own proofs"
+on storage.objects for insert
+with check ( bucket_id = 'habit_proofs' and auth.uid() = owner );

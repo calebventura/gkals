@@ -23,6 +23,9 @@ export interface HabitCompletion {
   habitId: string;
   completedOn: string;
   count: number;
+  proofUrl?: string | null;
+  proofType?: "image" | "audio" | "none" | null;
+  isFreeze?: boolean;
   createdAt: string;
 }
 

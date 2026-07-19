@@ -6,7 +6,8 @@ import { getMotivation } from "../lib/motivation";
 
 interface HabitCardProps {
   habit: HabitViewModel;
-  onToggleComplete: (habit: HabitViewModel) => void;
+  streak: number;
+  onToggleComplete: (habit: HabitViewModel, proofFile?: File) => void;
   onEdit?: (habit: HabitViewModel) => void;
 }
 
@@ -17,9 +18,33 @@ const iconMap = {
   flame: Flame
 };
 
-export function HabitCard({ habit, onToggleComplete, onEdit }: HabitCardProps) {
+import { useRef } from "react";
+
+export function HabitCard({ habit, streak, onToggleComplete, onEdit }: HabitCardProps) {
   const Icon = iconMap[habit.icon as keyof typeof iconMap] ?? Flame;
   const message = getMotivation(habit.status, habit.tone, `${habit.id}-${habit.status}`);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleCompleteClick = () => {
+    if (habit.completedToday) {
+      // Un-toggle
+      onToggleComplete(habit);
+    } else {
+      // Trigger file picker
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      onToggleComplete(habit, file);
+    }
+    // reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   return (
     <article
@@ -47,14 +72,26 @@ export function HabitCard({ habit, onToggleComplete, onEdit }: HabitCardProps) {
             <span>{habit.reminderTime}</span>
             <span>{cadenceLabel(habit)}</span>
           </div>
+          <div className="streak-badge">
+            <Flame size={12} />
+            Racha: {streak} {streak === 1 ? "día" : "días"}
+          </div>
         </div>
       </div>
 
+      <input 
+        type="file" 
+        accept="image/*,audio/*" 
+        capture="environment" 
+        style={{ display: "none" }} 
+        ref={fileInputRef} 
+        onChange={handleFileChange}
+      />
       <button
         className="complete-button"
         type="button"
         aria-pressed={habit.completedToday}
-        onClick={() => onToggleComplete(habit)}
+        onClick={handleCompleteClick}
         disabled={habit.status === "paused"}
       >
         <Check size={22} />

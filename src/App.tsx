@@ -10,8 +10,10 @@ import { demoCompletions, demoHabits } from "./data/demo";
 import { useAuth } from "./hooks/useAuth";
 import { registerPushSubscription } from "./lib/notifications";
 import { formatDateKey, getHabitStatus, isHabitScheduledToday } from "./lib/reminderRules";
+import { calculateGlobalStreak, calculateHabitStreak } from "./lib/streakLogic";
 import { supabase } from "./lib/supabase";
 import type { Habit, HabitCompletion, HabitDraft, HabitViewModel, TabKey } from "./types";
+import { MascotBanner } from "./components/MascotBanner";
 
 export default function App() {
   const { session, loading, isSupabaseConfigured, signIn, signOut, signUp } = useAuth();
@@ -19,8 +21,11 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>("today");
   const [habits, setHabits] = useState<Habit[]>(demoHabits);
   const [completions, setCompletions] = useState<HabitCompletion[]>(demoCompletions);
+  const [streakFreezes, setStreakFreezes] = useState(0);
   const [isCreating, setIsCreating] = useState(false);
   const [notice, setNotice] = useState("");
+
+  const globalStreak = calculateGlobalStreak(completions);
 
   const userId = session?.user.id ?? (demoMode ? "local-demo" : "");
   const isLocal = demoMode || !session || !supabase;
@@ -56,8 +61,11 @@ export default function App() {
   const overdueCount = habitViews.filter((habit) => habit.status === "overdue").length;
 
   async function loadRemoteData(remoteUserId: string) {
-    const [{ data: habitRows, error: habitsError }, { data: completionRows, error: completionsError }] =
-      await Promise.all([
+    const [
+      { data: habitRows, error: habitsError }, 
+      { data: completionRows, error: completionsError },
+      { data: profileRows }
+    ] = await Promise.all([
         supabase!
           .from("habits")
           .select("*")
@@ -67,7 +75,12 @@ export default function App() {
           .from("habit_completions")
           .select("*")
           .eq("user_id", remoteUserId)
-          .order("created_at", { ascending: false })
+          .order("created_at", { ascending: false }),
+        supabase!
+          .from("profiles")
+          .select("streak_freezes")
+          .eq("id", remoteUserId)
+          .single()
       ]);
 
     if (habitsError || completionsError) {
@@ -80,11 +93,11 @@ export default function App() {
         id: row.id,
         userId: row.user_id,
         title: row.title,
-        cadence: row.cadence,
+        cadence: row.cadence as any,
         scheduleDays: row.schedule_days,
         reminderTime: row.reminder_time.slice(0, 5),
         reminderRetries: row.reminder_retries,
-        tone: row.tone,
+        tone: row.tone as any,
         color: row.color,
         icon: row.icon,
         isPaused: row.is_paused,
@@ -98,9 +111,16 @@ export default function App() {
         habitId: row.habit_id,
         completedOn: row.completed_on,
         count: row.count,
+        proofUrl: row.proof_url,
+        proofType: row.proof_type as any,
+        isFreeze: row.is_freeze,
         createdAt: row.created_at
       }))
     );
+
+    if (profileRows) {
+      setStreakFreezes(profileRows.streak_freezes || 0);
+    }
   }
 
   async function handleCreateHabit(draft: HabitDraft) {
@@ -144,7 +164,7 @@ export default function App() {
     }
   }
 
-  async function handleToggleComplete(habit: HabitViewModel) {
+  async function handleToggleComplete(habit: HabitViewModel, proofFile?: File) {
     if (habit.completedToday && habit.todayCompletion) {
       setCompletions((current) => current.filter((completion) => completion.id !== habit.todayCompletion?.id));
 
@@ -162,15 +182,49 @@ export default function App() {
       return;
     }
 
+    let proofUrl = null;
+    let proofType: "image" | "audio" | "none" = "none";
+
+    if (proofFile && !isLocal) {
+      const ext = proofFile.name.split('.').pop();
+      const filename = `${userId}/${habit.id}-${Date.now()}.${ext}`;
+      const { data, error } = await supabase!.storage.from("habit_proofs").upload(filename, proofFile);
+      if (error) {
+        setNotice("Error subiendo prueba: " + error.message);
+      } else if (data) {
+        const { data: publicData } = supabase!.storage.from("habit_proofs").getPublicUrl(filename);
+        proofUrl = publicData.publicUrl;
+        proofType = proofFile.type.startsWith("audio") ? "audio" : "image";
+      }
+    }
+
     const completion: HabitCompletion = {
       id: crypto.randomUUID(),
       habitId: habit.id,
       completedOn: formatDateKey(),
       count: 1,
+      proofUrl,
+      proofType,
+      isFreeze: false,
       createdAt: new Date().toISOString()
     };
 
-    setCompletions((current) => [completion, ...current]);
+    const newCompletions = [completion, ...completions];
+    setCompletions(newCompletions);
+    
+    // Check if global streak just hit a multiple of 6
+    const oldStreak = calculateGlobalStreak(completions);
+    const newStreak = calculateGlobalStreak(newCompletions);
+    
+    let newFreezes = streakFreezes;
+    if (newStreak > oldStreak && newStreak > 0 && newStreak % 6 === 0) {
+      newFreezes = streakFreezes + 1;
+      setStreakFreezes(newFreezes);
+      // Give them the freezer
+      if (!isLocal) {
+        supabase!.from("profiles").update({ streak_freezes: newFreezes }).eq("id", userId).then();
+      }
+    }
 
     if (!isLocal) {
       const { error } = await supabase!.from("habit_completions").insert({
@@ -178,7 +232,10 @@ export default function App() {
         user_id: userId,
         habit_id: completion.habitId,
         completed_on: completion.completedOn,
-        count: completion.count
+        count: completion.count,
+        proof_url: proofUrl,
+        proof_type: proofType,
+        is_freeze: false
       });
 
       if (error) {
@@ -218,7 +275,7 @@ export default function App() {
   }
 
   return (
-    <AppShell activeTab={activeTab} onTabChange={setActiveTab} onSignOut={isLocal ? () => setDemoMode(false) : signOut}>
+    <AppShell activeTab={activeTab} globalStreak={globalStreak} onTabChange={setActiveTab} onSignOut={isLocal ? () => setDemoMode(false) : signOut}>
       {activeTab === "today" ? (
         <div className="stack">
           <section className="today-hero">
@@ -234,9 +291,16 @@ export default function App() {
 
           {notice ? <p className="notice">{notice}</p> : null}
 
+          <MascotBanner globalStreak={globalStreak} freezes={streakFreezes} overdueCount={overdueCount} />
+
           <div className="habit-list">
             {todayHabits.map((habit) => (
-              <HabitCard key={habit.id} habit={habit} onToggleComplete={handleToggleComplete} />
+              <HabitCard 
+                key={habit.id} 
+                habit={habit} 
+                streak={calculateHabitStreak(habit, completions)}
+                onToggleComplete={handleToggleComplete} 
+              />
             ))}
           </div>
         </div>
@@ -255,7 +319,12 @@ export default function App() {
 
           <div className="habit-list">
             {habitViews.map((habit) => (
-              <HabitCard key={habit.id} habit={habit} onToggleComplete={handleToggleComplete} />
+              <HabitCard 
+                key={habit.id} 
+                habit={habit} 
+                streak={calculateHabitStreak(habit, completions)}
+                onToggleComplete={handleToggleComplete} 
+              />
             ))}
           </div>
         </div>

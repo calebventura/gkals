@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gkals Habits - Mockup Rachas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f1115;
+            --surface: #1a1d24;
+            --surface-elevated: #252932;
+            --text-main: #ffffff;
+            --text-muted: #8b92a5;
+            --accent-fire: #ff5e00;
+            --accent-fire-glow: rgba(255, 94, 0, 0.4);
+            --accent-fire-light: #ff8c42;
+            --success: #10b981;
+            --danger: #ef4444;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 430px; /* iPhone Pro Max width */
+            background-color: var(--bg-color);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+        }
+
+        /* --- HEADER --- */
+        .header {
+            padding: 24px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            background: rgba(15, 17, 21, 0.8);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+        }
+
+        .global-streak {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, rgba(255,94,0,0.15) 0%, rgba(255,0,0,0.05) 100%);
+            padding: 6px 14px;
+            border-radius: 99px;
+            border: 1px solid rgba(255,94,0,0.3);
+            box-shadow: 0 0 15px var(--accent-fire-glow);
+            animation: pulse-glow 2s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 10px rgba(255,94,0,0.2); }
+            100% { box-shadow: 0 0 20px rgba(255,94,0,0.6); }
+        }
+
+        .global-streak span {
+            font-weight: 900;
+            color: var(--accent-fire-light);
+            font-size: 1.1rem;
+        }
+
+        .global-streak svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--accent-fire);
+            filter: drop-shadow(0 0 5px var(--accent-fire));
+        }
+
+        /* --- CHARACTER BANNER --- */
+        .mascot-banner {
+            margin: 20px;
+            background: linear-gradient(145deg, var(--surface), var(--surface-elevated));
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .mascot-banner::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--danger);
+        }
+
+        .mascot-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            object-fit: cover;
+            border: 2px solid var(--danger);
+            flex-shrink: 0;
+            background: #2a2a2a;
+        }
+
+        .mascot-bubble {
+            position: relative;
+        }
+
+        .mascot-bubble h3 {
+            font-size: 0.85rem;
+            color: var(--danger);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            font-weight: 900;
+        }
+
+        .mascot-bubble p {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        /* --- HABITS LIST --- */
+        .habits-container {
+            padding: 0 20px 100px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .habit-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid var(--border);
+            transition: transform 0.2s, background 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .habit-card:active {
+            transform: scale(0.98);
+        }
+
+        .habit-card.completed {
+            background: rgba(16, 185, 129, 0.05);
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .habit-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 2;
+        }
+
+        .habit-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+
+        .habit-time {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* STREAK BADGE */
+        .streak-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255, 94, 0, 0.1);
+            color: var(--accent-fire-light);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            margin-top: 6px;
+            width: fit-content;
+        }
+
+        .streak-badge svg {
+            width: 12px; height: 12px;
+            fill: var(--accent-fire);
+        }
+
+        /* CHECKBOX */
+        .habit-action {
+            z-index: 2;
+        }
+
+        .checkbox {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: var(--surface-elevated);
+            border: 2px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .habit-card.completed .checkbox {
+            background: var(--success);
+            border-color: var(--success);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .checkbox svg {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: white;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .habit-card.completed .checkbox svg {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* OVERDUE STATE */
+        .habit-card.overdue {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.05);
+        }
+        
+        .habit-card.overdue .habit-time {
+            color: var(--danger);
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header class="header">
+        <div class="header-title">Hoy</div>
+        <div class="global-streak">
+            <span>14</span>
+            <svg viewBox="0 0 24 24">
+                <path d="M12 2c0 0-4.5 4.5-4.5 9.5 0 2.2 1.3 4.2 3.2 5.2-.2-1.1.2-2.3 1-3.2 1 1 1.8 2.3 1.8 3.8 0 .5-.1 1-.3 1.4 2.1-.8 3.5-2.8 3.5-5.2C16.7 8.5 12 2 12 2zm-1 18.8c-.3.1-.7.2-1 .2-2.8 0-5-2.2-5-5 0-2.8 2.2-6.6 2.2-6.6.6 1.8 2 3.1 3.8 3.6.1 2.9 2.1 4.7 2.1 4.7-1.3 1.4-2.1 3.1-2.1 3.1z"/>
+            </svg>
+        </div>
+    </header>
+
+    <div class="mascot-banner">
+        <!-- Imagen servida desde la carpeta public de Vite -->
+        <img src="/mascot.jpg" alt="Sargento Hoot" class="mascot-img">
+        <div class="mascot-bubble">
+            <h3>Sargento Hoot</h3>
+            <p>"Tienes un hábito atrasado. ¿Vas a perder tu racha de 14 días por una excusa barata? ¡Muévete!"</p>
+        </div>
+    </div>
+
+    <main class="habits-container">
+        <!-- Habit 1 (Completed) -->
+        <div class="habit-card completed">
+            <div class="habit-info">
+                <div class="habit-title">Levantarse 6:00 AM</div>
+                <div class="habit-time">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    06:00 AM
+                </div>
+                <div class="streak-badge">
+                    <svg viewBox="0 0 24 24"><path d="M12 2c0 0-4.5 4.5-4.5 9.5 0 2.2 1.3 4.2 3.2 5.2-.2-1.1.2-2.3 1-3.2 1 1 1.8 2.3 1.8 3.8 0 .5-.1 1-.3 1.4 2.1-.8 3.5-2.8 3.5-5.2C16.7 8.5 12 2 12 2z"/></svg>
+                    Racha: 14 días
+                </div>
+            </div>
+            <div class="habit-action">
+                <div class="checkbox">
+                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Habit 2 (Overdue) -->
+        <div class="habit-card overdue">
+            <div class="habit-info">
+                <div class="habit-title">Gimnasio</div>
+                <div class="habit-time">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    08:00 AM - Atrasado
+                </div>
+                <div class="streak-badge">
+                    <svg viewBox="0 0 24 24"><path d="M12 2c0 0-4.5 4.5-4.5 9.5 0 2.2 1.3 4.2 3.2 5.2-.2-1.1.2-2.3 1-3.2 1 1 1.8 2.3 1.8 3.8 0 .5-.1 1-.3 1.4 2.1-.8 3.5-2.8 3.5-5.2C16.7 8.5 12 2 12 2z"/></svg>
+                    Racha: 5 días
+                </div>
+            </div>
+            <div class="habit-action">
+                <div class="checkbox" onclick="this.parentElement.parentElement.classList.toggle('completed'); this.parentElement.parentElement.classList.remove('overdue')">
+                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Habit 3 (Pending) -->
+        <div class="habit-card">
+            <div class="habit-info">
+                <div class="habit-title">Leer 10 páginas</div>
+                <div class="habit-time">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    09:00 PM
+                </div>
+                <div class="streak-badge" style="opacity: 0.5;">
+                    <svg viewBox="0 0 24 24"><path d="M12 2c0 0-4.5 4.5-4.5 9.5 0 2.2 1.3 4.2 3.2 5.2-.2-1.1.2-2.3 1-3.2 1 1 1.8 2.3 1.8 3.8 0 .5-.1 1-.3 1.4 2.1-.8 3.5-2.8 3.5-5.2C16.7 8.5 12 2 12 2z"/></svg>
+                    Sin racha
+                </div>
+            </div>
+            <div class="habit-action">
+                <div class="checkbox" onclick="this.parentElement.parentElement.classList.toggle('completed')">
+                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>
