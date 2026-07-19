@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f6f1e8" />
+    <link rel="apple-touch-icon" href="../public/icons/apple-touch-icon.png" />
+    <link rel="icon" href="../public/icons/icon-192.png" />
+    <style>
+:root {
+  color: #211f1c;
+  background: #f6f1e8;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --surface: #fffaf0;
+  --surface-strong: #ffffff;
+  --ink-muted: #6a6258;
+  --border: #ded4c6;
+  --danger: #b54132;
+  --green: #2f8f83;
+  --blue: #3e6fb6;
+  --shadow: 0 20px 60px rgb(47 40 32 / 12%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: #f6f1e8;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100dvh;
+  margin: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+.app-shell,
+.auth-screen,
+.loading-screen {
+  width: 100%;
+  min-height: 100dvh;
+  max-width: 520px;
+  margin: 0 auto;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 54%) 0%, rgb(255 255 255 / 0%) 34%),
+    #f6f1e8;
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  padding: max(18px, env(safe-area-inset-top)) 16px max(92px, env(safe-area-inset-bottom));
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 4px 0 18px;
+}
+
+.top-bar h1,
+.brand-block h1 {
+  margin: 0;
+  font-size: clamp(2rem, 11vw, 3.4rem);
+  line-height: 0.95;
+  letter-spacing: 0;
+}
+
+.eyebrow {
+  margin: 0 0 5px;
+  color: #8d4a3d;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.top-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-button,
+.tiny-icon-button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: #211f1c;
+  background: rgb(255 255 255 / 62%);
+}
+
+.tiny-icon-button {
+  width: 36px;
+  height: 36px;
+  background: transparent;
+}
+
+.screen-content {
+  flex: 1;
+}
+
+.stack {
+  display: grid;
+  gap: 16px;
+}
+
+.today-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 132px;
+  padding: 22px;
+  border-radius: 8px;
+  color: white;
+  background:
+    linear-gradient(135deg, rgb(33 31 28 / 90%), rgb(181 65 50 / 88%)),
+    #211f1c;
+  box-shadow: var(--shadow);
+}
+
+.today-hero span {
+  display: block;
+  font-size: clamp(4rem, 24vw, 7rem);
+  font-weight: 900;
+  line-height: 0.84;
+}
+
+.habit-list {
+  display: grid;
+  gap: 12px;
+}
+
+.habit-card {
+  --habit-color: #ef6f56;
+  display: grid;
+  grid-template-columns: 1fr 54px;
+  align-items: stretch;
+  gap: 12px;
+  min-height: 132px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-left: 7px solid var(--habit-color);
+  border-radius: 8px;
+  background: var(--surface-strong);
+  box-shadow: 0 10px 30px rgb(47 40 32 / 7%);
+}
+
+.habit-card.done {
+  border-left-color: var(--green);
+}
+
+.habit-card.overdue {
+  background: #fff5f2;
+  border-left-color: var(--danger);
+}
+
+.habit-main {
+  display: flex;
+  min-width: 0;
+  gap: 12px;
+}
+
+.habit-icon {
+  display: grid;
+  flex: 0 0 44px;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  color: white;
+  background: var(--habit-color);
+}
+
+.habit-copy {
+  min-width: 0;
+}
+
+.habit-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.habit-card h2,
+.status-panel h2 {
+  margin: 0;
+  font-size: 1.08rem;
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+.habit-card p,
+.status-panel p {
+  margin: 8px 0 0;
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.habit-card.overdue p {
+  color: #783327;
+  font-weight: 700;
+}
+
+.habit-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.habit-meta span {
+  min-height: 28px;
+  padding: 5px 8px;
+  border-radius: 7px;
+  color: #574f46;
+  background: #f1e8dc;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.complete-button {
+  display: grid;
+  place-items: center;
+  min-width: 54px;
+  min-height: 100%;
+  border: 0;
+  border-radius: 8px;
+  color: white;
+  background: #211f1c;
+}
+
+.habit-card.done .complete-button {
+  background: var(--green);
+}
+
+.complete-button:disabled {
+  color: #918a80;
+  background: #e2d8cb;
+}
+
+.primary-action,
+.secondary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 52px;
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 16px;
+  font-weight: 850;
+}
+
+.primary-action {
+  color: white;
+  background: #211f1c;
+}
+
+.secondary-action {
+  color: #211f1c;
+  border: 1px solid var(--border);
+  background: #fffaf0;
+}
+
+.primary-action.compact,
+.secondary-action.compact {
+  width: auto;
+  min-height: 44px;
+  white-space: nowrap;
+}
+
+.notice,
+.form-error,
+.panel-message {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #783327;
+  background: #ffe8df;
+  font-size: 0.92rem;
+  line-height: 1.32;
+}
+
+.auth-screen {
+  display: grid;
+  align-content: start;
+  gap: 24px;
+  padding: max(36px, env(safe-area-inset-top)) 18px max(28px, env(safe-area-inset-bottom));
+}
+
+.brand-block {
+  display: grid;
+  gap: 18px;
+  padding-top: 26px;
+}
+
+.app-mark {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  color: white;
+  background:
+    linear-gradient(135deg, #ef6f56 0 54%, #2f8f83 55% 100%);
+  font-size: 2rem;
+  font-weight: 950;
+  box-shadow: var(--shadow);
+}
+
+.auth-form,
+.habit-form,
+.settings-list,
+.status-panel {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-strong);
+}
+
+.auth-form label,
+.habit-form label {
+  display: grid;
+  gap: 7px;
+  color: #5f574d;
+  font-size: 0.84rem;
+  font-weight: 850;
+}
+
+input,
+select {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #d7cab9;
+  border-radius: 8px;
+  padding: 0 12px;
+  color: #211f1c;
+  background: #fffaf0;
+}
+
+input:focus,
+select:focus,
+button:focus-visible {
+  outline: 3px solid rgb(62 111 182 / 28%);
+  outline-offset: 2px;
+}
+
+.segmented {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 8px;
+  background: #eee3d5;
+}
+
+.segmented button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 42px;
+  border: 0;
+  border-radius: 7px;
+  color: #5b5248;
+  background: transparent;
+  font-weight: 850;
+}
+
+.segmented button.active {
+  color: #211f1c;
+  background: #fffaf0;
+  box-shadow: 0 4px 14px rgb(47 40 32 / 11%);
+}
+
+fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+legend {
+  margin-bottom: 8px;
+  color: #5f574d;
+  font-size: 0.84rem;
+  font-weight: 850;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.day-picker,
+.choice-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.day-picker button,
+.icon-choice,
+.color-swatch {
+  flex: 0 0 auto;
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: #574f46;
+  background: #fffaf0;
+  font-weight: 850;
+}
+
+.day-picker button.active,
+.icon-choice.active {
+  color: white;
+  border-color: #211f1c;
+  background: #211f1c;
+}
+
+.color-swatch {
+  --swatch-color: #ef6f56;
+  position: relative;
+  width: 44px;
+  padding: 0;
+  background: var(--swatch-color);
+}
+
+.color-swatch.active::after {
+  position: absolute;
+  inset: 12px;
+  border: 3px solid white;
+  border-radius: 999px;
+  content: "";
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.stats-grid article {
+  min-height: 104px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-strong);
+}
+
+.stats-grid span {
+  display: block;
+  font-size: 2rem;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.stats-grid p {
+  margin: 8px 0 0;
+  color: var(--ink-muted);
+  font-weight: 800;
+}
+
+.status-panel {
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+}
+
+.status-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  color: white;
+  background: var(--blue);
+}
+
+.settings-list {
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.settings-list div {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-list div:last-child {
+  border-bottom: 0;
+}
+
+.settings-list span {
+  color: var(--ink-muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.bottom-nav {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  width: min(520px, 100%);
+  margin: 0 auto;
+  padding: 8px 10px max(8px, env(safe-area-inset-bottom));
+  border-top: 1px solid rgb(222 212 198 / 86%);
+  background: rgb(255 250 240 / 92%);
+  backdrop-filter: blur(18px);
+}
+
+.bottom-nav button {
+  display: grid;
+  place-items: center;
+  gap: 3px;
+  min-height: 58px;
+  border: 0;
+  border-radius: 8px;
+  color: #766d62;
+  background: transparent;
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.bottom-nav button.active {
+  color: #211f1c;
+  background: #efe4d6;
+}
+
+.mock-index {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: max(36px, env(safe-area-inset-top)) 18px max(28px, env(safe-area-inset-bottom));
+}
+
+.mock-index a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 56px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: #211f1c;
+  background: var(--surface-strong);
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.bottom-nav a {
+  display: grid;
+  place-items: center;
+  gap: 3px;
+  min-height: 58px;
+  border: 0;
+  border-radius: 8px;
+  color: #766d62;
+  background: transparent;
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.bottom-nav a.active {
+  color: #211f1c;
+  background: #efe4d6;
+}
+
+.mock-link-reset {
+  color: inherit;
+  text-decoration: none;
+}
+
+.loading-screen {
+  display: grid;
+  place-items: center;
+}
+
+@media (max-width: 370px) {
+  .field-grid,
+  .status-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .top-bar h1,
+  .brand-block h1 {
+    font-size: 2rem;
+  }
+
+  .today-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+    </style>
+    <title>Gkals - Hoy</title>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="top-bar">
+        <div>
+          <p class="eyebrow">Gkals</p>
+          <h1>Hoy</h1>
+        </div>
+        <div class="top-actions">
+          <button class="icon-button" type="button" aria-label="Notificaciones">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M10.268 21a2 2 0 0 0 3.464 0" />
+              <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" />
+            </svg>
+          </button>
+          <button class="icon-button" type="button" aria-label="Salir">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m16 17 5-5-5-5" />
+              <path d="M21 12H9" />
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="screen-content">
+        <div class="stack">
+          <section class="today-hero">
+            <div>
+              <p class="eyebrow">Pendientes vencidos</p>
+              <span>2</span>
+            </div>
+            <a class="primary-action compact mock-link-reset" href="./create-habit.html">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14" />
+                <path d="M12 5v14" />
+              </svg>
+              Nuevo
+            </a>
+          </section>
+
+          <div class="habit-list">
+            <article class="habit-card overdue" style="--habit-color: #ef6f56">
+              <div class="habit-main">
+                <div class="habit-icon" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.4 14.4 9.6 9.6" />
+                    <path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l2.829-2.829a2 2 0 1 1 2.828 2.829z" />
+                    <path d="m21.5 21.5-1.4-1.4" />
+                    <path d="M3.9 3.9 2.5 2.5" />
+                    <path d="M6.343 8.172 3.515 5.343a2 2 0 1 1 2.828-2.828l2.829 2.828" />
+                  </svg>
+                </div>
+                <div class="habit-copy">
+                  <div class="habit-title-row">
+                    <h2>Entrenar 30 minutos</h2>
+                    <button class="tiny-icon-button" type="button" aria-label="Editar Entrenar 30 minutos">
+                      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="1" />
+                        <circle cx="19" cy="12" r="1" />
+                        <circle cx="5" cy="12" r="1" />
+                      </svg>
+                    </button>
+                  </div>
+                  <p>Tu promesa esta vencida. Responde con accion.</p>
+                  <div class="habit-meta">
+                    <span>07:30</span>
+                    <span>Lun a Vie</span>
+                  </div>
+                </div>
+              </div>
+              <button class="complete-button" type="button" aria-pressed="false">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+              </button>
+            </article>
+
+            <article class="habit-card done" style="--habit-color: #2f8f83">
+              <div class="habit-main">
+                <div class="habit-icon" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 7v14" />
+                    <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
+                  </svg>
+                </div>
+                <div class="habit-copy">
+                  <div class="habit-title-row">
+                    <h2>Leer 10 paginas</h2>
+                    <button class="tiny-icon-button" type="button" aria-label="Editar Leer 10 paginas">
+                      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="1" />
+                        <circle cx="19" cy="12" r="1" />
+                        <circle cx="5" cy="12" r="1" />
+                      </svg>
+                    </button>
+                  </div>
+                  <p>Cumplido. Mantente asi o vuelves a empezar de cero.</p>
+                  <div class="habit-meta">
+                    <span>21:00</span>
+                    <span>Diario</span>
+                  </div>
+                </div>
+              </div>
+              <button class="complete-button" type="button" aria-pressed="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+              </button>
+            </article>
+
+            <article class="habit-card overdue" style="--habit-color: #3e6fb6">
+              <div class="habit-main">
+                <div class="habit-icon" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z" />
+                    <path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a7 7 0 0 1-11.91 4.97" />
+                  </svg>
+                </div>
+                <div class="habit-copy">
+                  <div class="habit-title-row">
+                    <h2>Tomar agua</h2>
+                    <button class="tiny-icon-button" type="button" aria-label="Editar Tomar agua">
+                      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="1" />
+                        <circle cx="19" cy="12" r="1" />
+                        <circle cx="5" cy="12" r="1" />
+                      </svg>
+                    </button>
+                  </div>
+                  <p>Atrasado. Todavia cuenta si lo cierras.</p>
+                  <div class="habit-meta">
+                    <span>10:00</span>
+                    <span>Diario</span>
+                  </div>
+                </div>
+              </div>
+              <button class="complete-button" type="button" aria-pressed="false">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+              </button>
+            </article>
+          </div>
+        </div>
+      </div>
+
+      <nav class="bottom-nav" aria-label="Navegacion principal">
+        <a class="active" href="./today.html">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M8 2v4" />
+            <path d="M16 2v4" />
+            <rect width="18" height="18" x="3" y="4" rx="2" />
+            <path d="m9 14 2 2 4-4" />
+          </svg>
+          <span>Hoy</span>
+        </a>
+        <a href="./habits.html">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m3 17 2 2 4-4" />
+            <path d="m3 7 2 2 4-4" />
+            <path d="M13 6h8" />
+            <path d="M13 12h8" />
+            <path d="M13 18h8" />
+          </svg>
+          <span>Habitos</span>
+        </a>
+        <a href="./progress.html">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 3v18h18" />
+            <path d="M18 17V9" />
+            <path d="M13 17V5" />
+            <path d="M8 17v-3" />
+          </svg>
+          <span>Progreso</span>
+        </a>
+        <a href="./settings.html">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          <span>Ajustes</span>
+        </a>
+      </nav>
+    </div>
+  </body>
+</html>

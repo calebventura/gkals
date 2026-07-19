@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gkals Habits PWA — Reporte</title>
+<style>
+  :root {
+    --bg: #0b0f1a;
+    --bg-soft: #111827;
+    --card: rgba(255, 255, 255, 0.04);
+    --card-border: rgba(255, 255, 255, 0.09);
+    --text: #e5e9f2;
+    --text-dim: #9aa5b8;
+    --accent: #7c6cff;
+    --accent2: #22d3ee;
+    --accent3: #f472b6;
+    --code-bg: #0d1220;
+    --radius: 18px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, system-ui, sans-serif;
+    background:
+      radial-gradient(1100px 600px at 85% -10%, rgba(124, 108, 255, 0.22), transparent 60%),
+      radial-gradient(900px 500px at -10% 20%, rgba(34, 211, 238, 0.14), transparent 55%),
+      radial-gradient(800px 600px at 50% 110%, rgba(244, 114, 182, 0.10), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+
+  .wrap {
+    max-width: 940px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+  }
+
+  /* ============ HERO ============ */
+  .hero {
+    text-align: center;
+    padding: 56px 24px 48px;
+    position: relative;
+  }
+  .hero .badge {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    border: 1px solid rgba(34, 211, 238, 0.35);
+    background: rgba(34, 211, 238, 0.08);
+    padding: 6px 16px;
+    border-radius: 999px;
+    margin-bottom: 22px;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 6vw, 3.6rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(92deg, #ffffff 0%, var(--accent) 45%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 18px;
+  }
+  .hero p {
+    max-width: 640px;
+    margin: 0 auto;
+    color: var(--text-dim);
+    font-size: 1.08rem;
+  }
+  .hero .emoji-row {
+    font-size: 1.6rem;
+    margin-top: 24px;
+    letter-spacing: 0.4em;
+  }
+
+  /* ============ STAT CHIPS ============ */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin: 8px 0 48px;
+  }
+  .chip {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    backdrop-filter: blur(6px);
+  }
+  .chip strong { color: var(--text); font-weight: 600; }
+
+  /* ============ SECTIONS ============ */
+  section {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 34px 36px;
+    margin-bottom: 28px;
+    backdrop-filter: blur(8px);
+    position: relative;
+    overflow: hidden;
+  }
+  section::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), transparent 80%);
+    opacity: 0.8;
+  }
+  section h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.45rem;
+    font-weight: 700;
+    margin-bottom: 18px;
+    letter-spacing: -0.01em;
+  }
+  section h2 .ico {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    font-size: 1.25rem;
+    background: linear-gradient(135deg, rgba(124,108,255,0.25), rgba(34,211,238,0.18));
+    border: 1px solid rgba(124,108,255,0.35);
+    flex-shrink: 0;
+  }
+  section p { color: var(--text-dim); margin-bottom: 14px; }
+  section p strong, section li strong { color: var(--text); }
+
+  /* ============ STACK GRID ============ */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-top: 8px;
+  }
+  .tile {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 18px 18px 16px;
+    transition: transform .18s ease, border-color .18s ease;
+  }
+  .tile:hover {
+    transform: translateY(-3px);
+    border-color: rgba(124,108,255,0.5);
+  }
+  .tile .t-emoji { font-size: 1.5rem; display: block; margin-bottom: 8px; }
+  .tile .t-name { font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .tile .t-desc { font-size: 0.86rem; color: var(--text-dim); }
+
+  /* ============ STEPS ============ */
+  ol.steps {
+    list-style: none;
+    counter-reset: step;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 6px;
+  }
+  ol.steps li {
+    counter-increment: step;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 14px 18px;
+    color: var(--text-dim);
+  }
+  ol.steps li::before {
+    content: counter(step);
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    margin-top: 2px;
+  }
+  ol.steps li code { color: var(--accent2); }
+
+  /* ============ CODE BLOCKS ============ */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid rgba(124,108,255,0.25);
+    border-radius: 14px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    margin: 14px 0 18px;
+    position: relative;
+    font-size: 0.92rem;
+  }
+  pre::before {
+    content: attr(data-lang);
+    position: absolute;
+    top: 10px; right: 14px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(124,108,255,0.75);
+  }
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+  pre code { color: #c9d4ec; }
+  pre code .cmd { color: var(--accent2); }
+  pre code .cm  { color: #5b6b85; }
+  pre code .var { color: var(--accent3); }
+  p code, li code {
+    background: rgba(124,108,255,0.14);
+    border: 1px solid rgba(124,108,255,0.25);
+    border-radius: 6px;
+    padding: 2px 7px;
+    font-size: 0.86em;
+    color: #cfc7ff;
+  }
+
+  /* ============ CALLOUTS ============ */
+  .callout {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin: 16px 0 4px;
+    font-size: 0.95rem;
+    color: var(--text-dim);
+  }
+  .callout .c-ico { font-size: 1.25rem; line-height: 1.4; }
+  .callout.info {
+    background: rgba(34,211,238,0.07);
+    border: 1px solid rgba(34,211,238,0.3);
+  }
+  .callout.warn {
+    background: rgba(244,114,182,0.07);
+    border: 1px solid rgba(244,114,182,0.3);
+  }
+
+  /* ============ TONE PILLS ============ */
+  .tones {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .tone {
+    flex: 1 1 150px;
+    text-align: center;
+    padding: 16px 12px;
+    border-radius: 14px;
+    border: 1px solid var(--card-border);
+    background: rgba(255,255,255,0.03);
+  }
+  .tone .t-label {
+    font-family: Consolas, monospace;
+    font-weight: 700;
+    font-size: 1.02rem;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .tone:nth-child(1) .t-label { color: var(--accent2); }
+  .tone:nth-child(2) .t-label { color: var(--accent3); }
+  .tone:nth-child(3) .t-label { color: var(--accent); }
+  .tone .t-sub { font-size: 0.82rem; color: var(--text-dim); }
+
+  /* ============ ENV TABLE ============ */
+  .env-table { width: 100%; border-collapse: collapse; margin: 10px 0 6px; }
+  .env-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--card-border);
+    font-size: 0.92rem;
+  }
+  .env-table td:first-child {
+    font-family: Consolas, monospace;
+    color: var(--accent2);
+    white-space: nowrap;
+  }
+  .env-table td:last-child { color: var(--text-dim); }
+  .env-table tr:last-child td { border-bottom: none; }
+  .table-scroll { overflow-x: auto; }
+
+  footer {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    margin-top: 48px;
+    opacity: 0.7;
+  }
+
+  @media (max-width: 640px) {
+    section { padding: 26px 20px; }
+    .wrap { padding: 28px 16px 72px; }
+  }
+
+  /* Light theme */
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --card-border: #e3e7f0;
+      --text: #1c2333;
+      --text-dim: #5b6577;
+      --code-bg: #101627;
+    }
+    body {
+      background:
+        radial-gradient(1100px 600px at 85% -10%, rgba(124, 108, 255, 0.12), transparent 60%),
+        radial-gradient(900px 500px at -10% 20%, rgba(34, 211, 238, 0.10), transparent 55%),
+        var(--bg);
+    }
+    .chip, .tile, ol.steps li, .tone { background: #fbfcfe; }
+    section { backdrop-filter: none; }
+    p code, li code { color: #5a48d6; background: rgba(124,108,255,0.10); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <span class="badge">Reporte del proyecto</span>
+    <h1>Gkals Habits PWA</h1>
+    <p>PWA móvil para iPhone, enfocada en programar hábitos, marcar cumplimiento diario y repetir recordatorios cuando un hábito queda vencido.</p>
+    <div class="emoji-row">📱 ✅ 🔔</div>
+  </div>
+
+  <div class="chips">
+    <span class="chip">⚛️ <strong>React + Vite + TS</strong></span>
+    <span class="chip">🗄️ <strong>Supabase</strong></span>
+    <span class="chip">🔔 <strong>Web Push</strong></span>
+    <span class="chip">🍎 <strong>iPhone-first</strong></span>
+  </div>
+
+  <!-- STACK -->
+  <section>
+    <h2><span class="ico">🧱</span> Stack tecnológico</h2>
+    <div class="grid">
+      <div class="tile">
+        <span class="t-emoji">⚛️</span>
+        <div class="t-name">React + Vite + TypeScript</div>
+        <div class="t-desc">Frontend moderno con tipado estático y build ultrarrápido.</div>
+      </div>
+      <div class="tile">
+        <span class="t-emoji">🗄️</span>
+        <div class="t-name">Supabase</div>
+        <div class="t-desc">Auth, Postgres y Edge Functions como backend completo.</div>
+      </div>
+      <div class="tile">
+        <span class="t-emoji">🔔</span>
+        <div class="t-name">Service Worker propio</div>
+        <div class="t-desc">Notificaciones con Web Push gestionadas a medida.</div>
+      </div>
+      <div class="tile">
+        <span class="t-emoji">📱</span>
+        <div class="t-name">UI mobile-first</div>
+        <div class="t-desc">Diseñada para iPhone con soporte de safe areas.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARRANQUE -->
+  <section>
+    <h2><span class="ico">🚀</span> Arranque</h2>
+    <pre data-lang="bash"><code><span class="cmd">npm</span> install
+<span class="cmd">npm</span> run icons
+<span class="cmd">cp</span> .env.example .env
+<span class="cmd">npm</span> run dev</code></pre>
+
+    <p>Configura en <code>.env</code>:</p>
+    <div class="table-scroll">
+      <table class="env-table">
+        <tr><td>VITE_SUPABASE_URL</td><td>URL del proyecto Supabase</td></tr>
+        <tr><td>VITE_SUPABASE_ANON_KEY</td><td>Clave anónima pública de Supabase</td></tr>
+        <tr><td>VITE_VAPID_PUBLIC_KEY</td><td>Clave pública VAPID para Web Push</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- SUPABASE -->
+  <section>
+    <h2><span class="ico">🗄️</span> Configuración de Supabase</h2>
+    <ol class="steps">
+      <li>Crea un proyecto en Supabase.</li>
+      <li>Ejecuta <code>supabase/schema.sql</code> en el SQL Editor.</li>
+      <li>En Authentication, desactiva la confirmación de email para que las cuentas se creen sin verificación.</li>
+      <li>Copia la URL y la anon key al <code>.env</code>.</li>
+    </ol>
+
+    <p style="margin-top:22px">Para los recordatorios push, configura los secretos y despliega la función:</p>
+    <pre data-lang="bash"><code><span class="cmd">supabase</span> secrets set <span class="var">SUPABASE_SERVICE_ROLE_KEY</span>=...
+<span class="cmd">supabase</span> secrets set <span class="var">VAPID_PUBLIC_KEY</span>=...
+<span class="cmd">supabase</span> secrets set <span class="var">VAPID_PRIVATE_KEY</span>=...
+<span class="cmd">supabase</span> secrets set <span class="var">VAPID_SUBJECT</span>=mailto:ops@example.com
+<span class="cmd">supabase</span> secrets set <span class="var">CRON_SECRET</span>=...
+<span class="cmd">supabase</span> functions deploy send-habit-reminders</code></pre>
+
+    <div class="callout info">
+      <span class="c-ico">⏰</span>
+      <div>
+        Programa la función <strong>cada 10 minutos</strong> desde Supabase Scheduler o un cron externo, enviando el header:
+        <pre data-lang="http" style="margin-bottom:0; margin-top:10px"><code>Authorization: Bearer <span class="var">$CRON_SECRET</span></code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- IPHONE -->
+  <section>
+    <h2><span class="ico">🍎</span> iPhone y Web Push</h2>
+    <div class="callout warn">
+      <span class="c-ico">⚠️</span>
+      <div>Para Web Push en iOS, la app debe estar <strong>instalada desde Safari en la pantalla de inicio</strong> y servida por <strong>HTTPS</strong>.</div>
+    </div>
+    <p style="margin-top:16px">La persistencia se implementa con tres mecanismos:</p>
+    <div class="grid">
+      <div class="tile">
+        <span class="t-emoji">🔁</span>
+        <div class="t-name">Repetición en backend</div>
+        <div class="t-desc">Los recordatorios se reenvían desde el servidor hasta que el hábito se cumple.</div>
+      </div>
+      <div class="tile">
+        <span class="t-emoji">📌</span>
+        <div class="t-name">requireInteraction</div>
+        <div class="t-desc">La notificación permanece visible cuando el navegador lo soporta.</div>
+      </div>
+      <div class="tile">
+        <span class="t-emoji">👁️</span>
+        <div class="t-name">Deuda visible</div>
+        <div class="t-desc">Los hábitos vencidos se mantienen a la vista dentro de la app.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TONO -->
+  <section>
+    <h2><span class="ico">💬</span> Tono de los mensajes</h2>
+    <p>El lenguaje agresivo queda centralizado en <code>src/lib/motivation.ts</code> y en la función <code>send-habit-reminders</code>. Cambiar la personalidad <strong>no requiere tocar las pantallas</strong>.</p>
+    <div class="tones">
+      <div class="tone">
+        <span class="t-label">strict</span>
+        <span class="t-sub">Exigente y disciplinado</span>
+      </div>
+      <div class="tone">
+        <span class="t-label">hard</span>
+        <span class="t-sub">Sin concesiones</span>
+      </div>
+      <div class="tone">
+        <span class="t-label">direct</span>
+        <span class="t-sub">Al grano, sin rodeos</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>Gkals Habits PWA · Reporte generado a partir de README.md</footer>
+</div>
+</body>
+</html>
