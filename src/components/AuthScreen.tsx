@@ -113,11 +113,9 @@ export function AuthScreen({
           {isSubmitting ? "Procesando" : mode === "sign-up" ? "Crear sin verificacion" : "Entrar"}
         </button>
 
-        {!isSupabaseConfigured ? (
           <button className="secondary-action" type="button" onClick={onDemoStart}>
-            Abrir demo local
+            Abrir modo de prueba local
           </button>
-        ) : null}
       </form>
     </main>
   );
